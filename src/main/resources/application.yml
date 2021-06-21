@@ -11,10 +11,34 @@ spring:
           uri: lb://FLIGHT-SERVICE
           predicates:
             - Path: /flight/**
+          filter:
+            - name: CircuitBreaker
+              args:
+                name: FLIGHT-SERVICE
+                fallbackuri: forward:/flightServiceFallBack
         - id: PASSENGER-SERVICE
           uri: lb://PASSENGER-SERVICE
           predicates:
             - Path: /passengers/**
+          filter:
+            - name: CircuitBreaker
+              args:
+                name: PASSENGER-SERVICE
+                fallbackuri: forward:/passengerServiceFallBack
+
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 4000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
 
 eureka:
   client:
